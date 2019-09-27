@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from flask_restful import Api, Resource, fields, marshal_with, reqparse
 
-from src.models import Recycle, db
+from src.models import Recycle, TrashPoint, db
 
 recycles = Blueprint('recycles', __name__)
 api = Api(recycles)
@@ -37,7 +37,8 @@ class RecyclesList(Resource):
             bonus_program=args['bonus_program'],
         )
         new_recycle.save()
-        return dict()
+        print(new_recycle.id)
+        return {'id': new_recycle.id}
 
 
 recycle_fields = {
@@ -69,6 +70,32 @@ class Recycles(Resource):
     def delete(self, rec_id):
         """Delete recycle with specified id"""
 
+trash_point_parser = reqparse.RequestParser()
+trash_point_parser.add_argument('address', type=str, required=True)
+trash_point_parser.add_argument('position', type=str, required=True)
+trash_point_parser.add_argument('comment', type=str, required=True)
+trash_point_parser.add_argument('contacts', type=str, required=True)
+trash_point_parser.add_argument('trash_types', type=str, required=True)
+
+
+class TrashPointsList(Resource):
+    """List of trash points"""
+    def get(self):
+        """Get all trash points available"""
+        pass
+
+    def post(self):
+        """Create a new trash point"""
+        args = trash_point_parser.parse_args()
+        new_trash_point = TrashPoint(address=args['address'],
+                                     position=args['position'],
+                                     comment=args['comment'],
+                                     contacts=args['contacts'],
+                                     trash_types=args['trash_types'])
+        new_trash_point.save()
+        return dict()
+
 
 api.add_resource(RecyclesList, '/recycles')
 api.add_resource(Recycles, '/recycles/<int:rec_id>')
+api.add_resource(TrashPointsList, '/trashpoints')

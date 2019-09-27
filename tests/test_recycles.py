@@ -49,3 +49,16 @@ def test_post_recycle(client):
     }
     response = client.post('/recycles', json=json_data)
     assert response.status_code == 200
+
+
+def test_post_trash_point(client):
+    """Test trash point creation"""
+    json_data = {
+        'address': 'Recycling str, 12',
+        'position': 'POINT(0 1)',
+        'comment': 'thanks dude!',
+        'contacts': 'Im so easy to find!',
+        'trash_types': 'plastic&organic&javascript',
+    }
+    response = client.post('/trashpoints', json=json_data)
+    assert response.status_code == 200
