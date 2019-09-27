@@ -29,8 +29,14 @@ def test_get_recycle(client):
     )
     new_recycle.save()
 
-    response = client.get('/recycles')
+    query_str = {
+        'center': 'POINT(20 40)',
+        'radius': 1.0,
+    }
+    response = client.get('/recycles', query_string=query_str)
     assert response.status_code == 200
+    assert isinstance(response.json['ids'], list)
+    assert len(response.json['ids']) >= 1
 
     response = client.get('/recycles/{}'.format(new_recycle.id))
     assert response.status_code == 200

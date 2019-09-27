@@ -1,12 +1,18 @@
 from flask import Blueprint, jsonify
 from flask_restful import Api, Resource, fields, marshal_with, reqparse
+from geoalchemy2 import func
 
-from src.models import Recycle, TrashPoint, db
+from src.models import Recycle, TrashPoint
 
 recycles = Blueprint('recycles', __name__)
 api = Api(recycles)
 
+geo_rec_parser = reqparse.RequestParser()
 recycles_parser = reqparse.RequestParser()
+
+geo_rec_parser.add_argument('center', type=str, required=True)
+geo_rec_parser.add_argument('radius', type=float, required=True)
+geo_rec_parser.add_argument('trash_types', type=str)
 
 recycles_parser.add_argument('name', type=str, required=True)
 recycles_parser.add_argument('address', type=str, required=True)
@@ -21,8 +27,12 @@ class RecyclesList(Resource):
     """List of recycle units"""
     def get(self):
         """Get list of recycle units"""
-        ids = db.session.query(Recycle.id).all()
-        return jsonify(ids)
+        args = geo_rec_parser.parse_args()
+        ids = Recycle.query.filter(
+            func.ST_Distance_Sphere(args['center'], Recycle.position) <=
+            args['radius'])
+        result = ids.all()
+        return {'ids': [r_obj.id for r_obj in result]}
 
     def post(self):
         """Create new recycle unit"""
@@ -69,6 +79,7 @@ class Recycles(Resource):
 
     def delete(self, rec_id):
         """Delete recycle with specified id"""
+
 
 trash_point_parser = reqparse.RequestParser()
 trash_point_parser.add_argument('address', type=str, required=True)
