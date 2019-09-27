@@ -40,4 +40,19 @@ class RecyclesList(Resource):
         new_recycle.save()
 
 
+class Recycles(Resource):
+    """Individual resources"""
+    def get(self, rec_id):
+        """Get recycle info by id"""
+        pass
+
+    def put(self, rec_id):
+        """Update recycle by id"""
+        pass
+
+    def delete(self, rec_id):
+        """Delete recycle with specified id"""
+
+
 api.add_resource(RecyclesList, '/recycles')
+api.add_resource(Recycles, '/recycles/<int:rec_id>')

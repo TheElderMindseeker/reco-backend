@@ -2,7 +2,7 @@ import pytest
 
 from src import create_app
 from src.config import TestConfig
-from src.models import db
+from src.models import db, Recycle
 
 
 @pytest.fixture(scope='module')
@@ -14,6 +14,23 @@ def client():
         db.create_all()
         yield t_client
         db.drop_all()
+
+
+def test_get_recycle(client):
+    """Test recycle aggregation"""
+    new_recycle = Recycle(
+        name='Recycle 2',
+        address='Recycling str, 24',
+        position='POINT(20 40)',
+        open_time='10:00',
+        close_time='19:00',
+        trash_types='plastic&organic&javascript',
+        bonus_program=False,
+    )
+    new_recycle.save()
+
+    response = client.get('/recycles')
+    assert response.status_code == 200
 
 
 def test_post_recycle(client):
