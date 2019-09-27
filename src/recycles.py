@@ -1,7 +1,7 @@
-from flask import Blueprint
-from flask_restful import Api, Resource, reqparse
+from flask import Blueprint, jsonify
+from flask_restful import Resource, Api, reqparse
 
-from src.models import Recycle
+from src.models import db, Recycle
 
 recycles = Blueprint('recycles', __name__)
 api = Api(recycles)
@@ -22,6 +22,9 @@ class RecyclesList(Resource):
     """List of recycle units"""
     def get(self):
         """Get list of recycle units"""
+        ids = db.session.query(Recycle.id).all()
+        return jsonify(ids)
+
     def post(self):
         """Create new recycle unit"""
         args = recycles_parser.parse_args()
