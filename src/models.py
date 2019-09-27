@@ -20,3 +20,7 @@ class Recycle(db.Model):
     # Separator: &
     trash_types = db.Column(db.String(512), nullable=False)
     bonus_program = db.Column(db.Boolean, nullable=False)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()

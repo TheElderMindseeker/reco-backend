@@ -1,4 +1,3 @@
-"""Testing basic views"""
 import pytest
 
 from src import create_app
@@ -17,7 +16,16 @@ def client():
         db.drop_all()
 
 
-def test_hello(client):
-    """Test hello view"""
-    response = client.get('/hello')
+def test_post_recycle(client):
+    """Test recycle creation"""
+    json_data = {
+        'name': 'Recycle 1',
+        'address': 'Recycling str, 12',
+        'position': 'POINT(0 1)',
+        'open_time': '10:00',
+        'close_time': '19:00',
+        'trash_types': 'plastic&organic&javascript',
+        'bonus_program': False,
+    }
+    response = client.post('/recycles', json=json_data)
     assert response.status_code == 200
