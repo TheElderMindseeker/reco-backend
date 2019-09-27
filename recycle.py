@@ -1,4 +1,4 @@
-from src.main import create_app
+from src import create_app
 from src.config import ProdConfig
 
 app = create_app(ProdConfig)
