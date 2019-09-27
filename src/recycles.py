@@ -32,7 +32,15 @@ class RecyclesList(Resource):
             func.ST_Distance_Sphere(args['center'], Recycle.position) <=
             args['radius'])
         result = ids.all()
-        return {'ids': [r_obj.id for r_obj in result]}
+        if args['trash_types']:
+            result = [
+                r_obj.id for r_obj in result
+                if set(args['trash_types'].split(',')).issubset(
+                    set(r_obj.trash_types.split('&')))
+            ]
+            return {'ids': result}
+        else:
+            return {'ids': [r_obj.id for r_obj in result]}
 
     def post(self):
         """Create new recycle unit"""
@@ -93,7 +101,20 @@ class TrashPointsList(Resource):
     """List of trash points"""
     def get(self):
         """Get all trash points available"""
-        pass
+        args = geo_rec_parser.parse_args()
+        ids = TrashPoint.query.filter(
+            func.ST_Distance_Sphere(args['center'], TrashPoint.position) <=
+            args['radius'])
+        result = ids.all()
+        if args['trash_types']:
+            result = [
+                r_obj.id for r_obj in result
+                if set(args['trash_types'].split(',')).issubset(
+                    set(r_obj.trash_types.split('&')))
+            ]
+            return {'ids': result}
+        else:
+            return {'ids': [r_obj.id for r_obj in result]}
 
     def post(self):
         """Create a new trash point"""

@@ -2,7 +2,7 @@ import pytest
 
 from src import create_app
 from src.config import TestConfig
-from src.models import db, Recycle
+from src.models import db, Recycle, TrashPoint
 
 
 @pytest.fixture(scope='module')
@@ -38,8 +38,69 @@ def test_get_recycle(client):
     assert isinstance(response.json['ids'], list)
     assert len(response.json['ids']) >= 1
 
+    query_str = {
+        'center': 'POINT(20 40)',
+        'radius': 1.0,
+        'trash_types': 'javascript,organic',
+    }
+    response = client.get('/recycles', query_string=query_str)
+    assert response.status_code == 200
+    assert isinstance(response.json['ids'], list)
+    assert len(response.json['ids']) >= 1
+
+    query_str = {
+        'center': 'POINT(20 40)',
+        'radius': 1.0,
+        'trash_types': 'plastic,metal',
+    }
+    response = client.get('/recycles', query_string=query_str)
+    assert response.status_code == 200
+    assert isinstance(response.json['ids'], list)
+    assert len(response.json['ids']) == 0
+
     response = client.get('/recycles/{}'.format(new_recycle.id))
     assert response.status_code == 200
+
+
+def test_get_trash_point(client):
+    """Test getting trash points"""
+    new_trash_point = TrashPoint(
+        address='Trash Avenue, 77',
+        position='POINT(100 20)',
+        comment='Pick up here',
+        contacts='@TrashGiver',
+        trash_types='metal&organic&plastic',
+    )
+    new_trash_point.save()
+
+    query_str = {
+        'center': 'POINT(100 20)',
+        'radius': 1.0,
+    }
+    response = client.get('/trashpoints', query_string=query_str)
+    assert response.status_code == 200
+    assert isinstance(response.json['ids'], list)
+    assert len(response.json['ids']) >= 1
+
+    query_str = {
+        'center': 'POINT(100 20)',
+        'radius': 1.0,
+        'trash_types': 'metal',
+    }
+    response = client.get('/trashpoints', query_string=query_str)
+    assert response.status_code == 200
+    assert isinstance(response.json['ids'], list)
+    assert len(response.json['ids']) >= 1
+
+    query_str = {
+        'center': 'POINT(100 20)',
+        'radius': 1.0,
+        'trash_types': 'javascript,metal',
+    }
+    response = client.get('/trashpoints', query_string=query_str)
+    assert response.status_code == 200
+    assert isinstance(response.json['ids'], list)
+    assert len(response.json['ids']) == 0
 
 
 def test_post_recycle(client):
