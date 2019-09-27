@@ -102,6 +102,9 @@ def test_get_trash_point(client):
     assert isinstance(response.json['ids'], list)
     assert len(response.json['ids']) == 0
 
+    response = client.get('/trashpoints/{}'.format(new_trash_point.id))
+    assert response.status_code == 200
+
 
 def test_post_recycle(client):
     """Test recycle creation"""

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, abort
 from flask_restful import Api, Resource, fields, marshal_with, reqparse
 from geoalchemy2 import func
 
@@ -77,7 +77,7 @@ class Recycles(Resource):
         """Get recycle info by id"""
         got_recycle = Recycle.query.get(rec_id)
         if not got_recycle:
-            return jsonify(errorMessage='Recycle not found'), 404
+            abort(404)
 
         return got_recycle
 
@@ -128,6 +128,28 @@ class TrashPointsList(Resource):
         return dict()
 
 
+trash_point_fields = {
+    'position': fields.String,
+    'comment': fields.String,
+    'address': fields.String,
+    'contacts': fields.String,
+    'trash_types': fields.String,
+}
+
+
+class TrashPoints(Resource):
+    """Individual trash points"""
+    @marshal_with(trash_point_fields)
+    def get(self, tr_id):
+        """Get trash point info"""
+        trash_point_got = TrashPoint.query.get(tr_id)
+        if not trash_point_got:
+            abort(404)
+
+        return trash_point_got
+
+
 api.add_resource(RecyclesList, '/recycles')
 api.add_resource(Recycles, '/recycles/<int:rec_id>')
 api.add_resource(TrashPointsList, '/trashpoints')
+api.add_resource(TrashPoints, '/trashpoints/<int:tr_id>')
