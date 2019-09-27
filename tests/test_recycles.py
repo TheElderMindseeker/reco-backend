@@ -32,6 +32,9 @@ def test_get_recycle(client):
     response = client.get('/recycles')
     assert response.status_code == 200
 
+    response = client.get('/recycles/{}'.format(new_recycle.id))
+    assert response.status_code == 200
+
 
 def test_post_recycle(client):
     """Test recycle creation"""

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from flask_restful import Resource, Api, reqparse
+from flask_restful import Resource, Api, reqparse, fields, marshal_with
 
 from src.models import db, Recycle
 
@@ -40,11 +40,27 @@ class RecyclesList(Resource):
         new_recycle.save()
 
 
+recycle_fields = {
+    'name': fields.String,
+    'address': fields.String,
+    'position': fields.String,
+    'open_time': fields.String,
+    'close_time': fields.String,
+    'trash_types': fields.String,
+    'bonus_program': fields.Boolean,
+}
+
+
 class Recycles(Resource):
     """Individual resources"""
+    @marshal_with(recycle_fields)
     def get(self, rec_id):
         """Get recycle info by id"""
-        pass
+        got_recycle = Recycle.query.get(rec_id)
+        if not got_recycle:
+            return jsonify(errorMessage='Recycle not found'), 404
+
+        return got_recycle
 
     def put(self, rec_id):
         """Update recycle by id"""
