@@ -1,11 +1,10 @@
 from flask import Blueprint, jsonify
-from flask_restful import Resource, Api, reqparse, fields, marshal_with
+from flask_restful import Api, Resource, fields, marshal_with, reqparse
 
-from src.models import db, Recycle
+from src.models import Recycle, db
 
 recycles = Blueprint('recycles', __name__)
 api = Api(recycles)
-
 
 recycles_parser = reqparse.RequestParser()
 
@@ -38,6 +37,7 @@ class RecyclesList(Resource):
             bonus_program=args['bonus_program'],
         )
         new_recycle.save()
+        return dict()
 
 
 recycle_fields = {
