@@ -1,1 +1,1 @@
-web: gunicorn trash:app
+web: gunicorn recycle:app
