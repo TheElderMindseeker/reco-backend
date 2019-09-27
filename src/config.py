@@ -9,7 +9,7 @@ class BaseConfig:
 
 class ProdConfig(BaseConfig):
     """Production config"""
-    SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
 
 
 class TestConfig(BaseConfig):
