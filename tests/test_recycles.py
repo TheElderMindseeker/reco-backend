@@ -76,6 +76,7 @@ def test_get_trash_point(client):
         comment='Pick up here',
         contacts='@TrashGiver',
         trash_types='metal&organic&plastic',
+        reward=51,
     )
     new_trash_point.save()
 
@@ -142,6 +143,7 @@ def test_post_trash_point(client):
         'comment': 'thanks dude!',
         'contacts': 'Im so easy to find!',
         'trash_types': 'plastic&organic&javascript',
+        'reward': 42,
     }
     response = client.post('/trashpoints', json=json_data)
     assert response.status_code == 200

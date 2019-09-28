@@ -51,6 +51,7 @@ class TrashPoint(db.Model):
     address = db.Column(db.String(256), nullable=False)
     trash_types = db.Column(db.String(512), nullable=False)
     comment = db.Column(db.String(512), nullable=False)
+    reward = db.Column(db.Integer, nullable=False)
 
     def save(self):
         db.session.add(self)

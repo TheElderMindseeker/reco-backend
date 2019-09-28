@@ -120,6 +120,7 @@ trash_point_parser.add_argument('pos_lng', type=str, required=True)
 trash_point_parser.add_argument('comment', type=str, required=True)
 trash_point_parser.add_argument('contacts', type=str, required=True)
 trash_point_parser.add_argument('trash_types', type=str, required=True)
+trash_point_parser.add_argument('reward', type=int, required=True)
 
 
 trash_point_fields = {
@@ -130,6 +131,7 @@ trash_point_fields = {
     'address': fields.String,
     'contacts': fields.String,
     'trash_types': fields.String,
+    'reward': fields.Integer,
 }
 
 
@@ -166,7 +168,8 @@ class TrashPointsList(Resource):
                                      position=position,
                                      comment=args['comment'],
                                      contacts=args['contacts'],
-                                     trash_types=args['trash_types'])
+                                     trash_types=args['trash_types'],
+                                     reward=args['reward'])
         new_trash_point.save()
         return dict()
 
