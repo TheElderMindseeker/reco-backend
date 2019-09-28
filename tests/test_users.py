@@ -45,11 +45,7 @@ def test_users_get_points(client):
     response = client.post('/users', json=json_data)
     assert response.status_code == 200
 
-    query_str = {
-        'phone': '+71234567890',
-        'password': '1234user',
-    }
-    response = client.get('/users', query_string=query_str)
+    response = client.get('/users', query_string=json_data)
     assert response.status_code == 200
     assert 'token' in response.json.keys()
 
@@ -60,3 +56,30 @@ def test_users_get_points(client):
     response = client.get('/users/+71234567890', headers=headers)
     assert response.status_code == 200
     assert 'points' in response.json
+
+
+def test_users_set_add(client):
+    """Set user to be operator and add points"""
+    json_data = {
+        'phone': '+71234567891',
+        'password': '1234oper',
+    }
+    response = client.post('/users', json=json_data)
+    assert response.status_code == 200
+
+    t_user = User.query.filter_by(phone='+71234567891').first()
+    t_user.is_operator = True
+    t_user.save()
+
+    response = client.get('/users', query_string=json_data)
+    assert response.status_code == 200
+
+    access_token = response.json['token']
+    headers = {
+        ('Authorization', 'Bearer ' + access_token),
+    }
+    json_data = {
+        'add_points': 10,
+    }
+    response = client.put('/users/+71234567891', headers=headers, json=json_data)
+    assert response.status_code == 200

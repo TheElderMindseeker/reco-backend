@@ -1,5 +1,5 @@
 from flask import Blueprint, abort
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_claims
 from flask_restful import Api, Resource, marshal_with, reqparse
 
 from src.helpers import bcrypt
@@ -35,6 +35,11 @@ class UsersList(Resource):
         return dict()
 
 
+update_user_parser = reqparse.RequestParser()
+update_user_parser.add_argument('add_points', type=int)
+update_user_parser.add_argument('make_operator', type=bool)
+
+
 class Users(Resource):
     """User information"""
     @jwt_required
@@ -43,6 +48,22 @@ class Users(Resource):
         real_phone = phone.replace(' ', '+')
         got_user = User.query.filter_by(phone=real_phone).first_or_404()
         return {'points': got_user.points}
+
+    @jwt_required
+    def put(self, phone):
+        """Update user information, i.e. add points"""
+        real_phone = phone.replace(' ', '+')
+        got_user = User.query.filter_by(phone=real_phone).first_or_404()
+        args = update_user_parser.parse_args()
+        if args['make_operator']:
+            got_user.is_operator = True
+        if args['add_points']:
+            claims = get_jwt_claims()
+            if not claims['operator']:
+                abort(403)
+            got_user.points += args['add_points']
+        got_user.save()
+        return {'msg': 'okay'}
 
 
 api.add_resource(UsersList, '/users')
