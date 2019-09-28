@@ -13,6 +13,7 @@ def client():
         t_client = app.test_client()
         db.create_all()
         yield t_client
+        db.session.close()
         db.drop_all()
 
 
