@@ -39,6 +39,7 @@ class PositionLongitude(fields.Raw):
 
 
 recycle_fields = {
+    'id': fields.Integer,
     'name': fields.String,
     'address': fields.String,
     'pos_lat': PositionLatitude(attribute='position'),
@@ -154,6 +155,7 @@ class TrashPointsList(Resource):
 
 
 trash_point_fields = {
+    'id': fields.Integer,
     'pos_lat': PositionLatitude(attribute='position'),
     'pos_lng': PositionLongitude(attribute='position'),
     'comment': fields.String,
