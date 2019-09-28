@@ -1,5 +1,5 @@
 from flask import Blueprint, abort
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from flask_restful import Api, Resource, marshal_with, reqparse
 
 from src.helpers import bcrypt
@@ -35,4 +35,15 @@ class UsersList(Resource):
         return dict()
 
 
+class Users(Resource):
+    """User information"""
+    @jwt_required
+    def get(self, phone):
+        """Get points balance"""
+        real_phone = phone.replace(' ', '+')
+        got_user = User.query.filter_by(phone=real_phone).first_or_404()
+        return {'points': got_user.points}
+
+
 api.add_resource(UsersList, '/users')
+api.add_resource(Users, '/users/<phone>')
