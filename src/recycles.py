@@ -86,7 +86,7 @@ class RecyclesList(Resource):
             position=position,
             open_time=args['open_time'],
             close_time=args['close_time'],
-            trash_types=args['trash_types'],
+            trash_types='&'.join(args['trash_types'].split(',')),
             bonus_program=args['bonus_program'],
         )
         new_recycle.save()
