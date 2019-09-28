@@ -33,7 +33,7 @@ def test_get_recycle(client):
     query_str = {
         'c_lat': '45.853467',
         'c_lng': '65.254376',
-        'radius': 1.0,
+        'radius': 40000,
     }
     response = client.get('/recycles', query_string=query_str)
     assert response.status_code == 200

@@ -29,13 +29,13 @@ recycles_parser.add_argument('bonus_program', type=bool, required=True)
 class PositionLatitude(fields.Raw):
     """Extract latitude"""
     def format(self, value):
-        return to_shape(value).y
+        return to_shape(value).x
 
 
 class PositionLongitude(fields.Raw):
     """Extract latitude"""
     def format(self, value):
-        return to_shape(value).x
+        return to_shape(value).y
 
 
 recycle_fields = {
