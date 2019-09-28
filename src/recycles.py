@@ -26,43 +26,6 @@ recycles_parser.add_argument('trash_types', type=str, required=True)
 recycles_parser.add_argument('bonus_program', type=bool, required=True)
 
 
-class RecyclesList(Resource):
-    """List of recycle units"""
-    def get(self):
-        """Get list of recycle units"""
-        args = geo_rec_parser.parse_args()
-        center = 'POINT({} {})'.format(args['c_lat'], args['c_lng'])
-        ids = Recycle.query.filter(
-            func.ST_Distance_Sphere(center, Recycle.position) <= args['radius'])
-        result = ids.all()
-        if args['trash_types']:
-            result = [
-                r_obj.id for r_obj in result
-                if set(args['trash_types'].split(',')).issubset(
-                    set(r_obj.trash_types.split('&')))
-            ]
-            return {'ids': result}
-        else:
-            return {'ids': [r_obj.id for r_obj in result]}
-
-    def post(self):
-        """Create new recycle unit"""
-        args = recycles_parser.parse_args()
-        position = 'POINT({} {})'.format(args['pos_lat'], args['pos_lng'])
-        new_recycle = Recycle(
-            name=args['name'],
-            address=args['address'],
-            position=position,
-            open_time=args['open_time'],
-            close_time=args['close_time'],
-            trash_types=args['trash_types'],
-            bonus_program=args['bonus_program'],
-        )
-        new_recycle.save()
-        print(new_recycle.id)
-        return {'id': new_recycle.id}
-
-
 class PositionLatitude(fields.Raw):
     """Extract latitude"""
     def format(self, value):
@@ -85,6 +48,49 @@ recycle_fields = {
     'trash_types': fields.String,
     'bonus_program': fields.Boolean,
 }
+
+
+recycle_list = {
+    'result': fields.List(fields.Nested(recycle_fields)),
+}
+
+
+class RecyclesList(Resource):
+    """List of recycle units"""
+    @marshal_with(recycle_list)
+    def get(self):
+        """Get list of recycle units"""
+        args = geo_rec_parser.parse_args()
+        center = 'POINT({} {})'.format(args['c_lat'], args['c_lng'])
+        ids = Recycle.query.filter(
+            func.ST_Distance_Sphere(center, Recycle.position) <= args['radius'])
+        result = ids.all()
+        if args['trash_types']:
+            result = [
+                r_obj for r_obj in result
+                if set(args['trash_types'].split(',')).issubset(
+                    set(r_obj.trash_types.split('&')))
+            ]
+            return {'result': result}
+        else:
+            return {'result': [r_obj for r_obj in result]}
+
+    def post(self):
+        """Create new recycle unit"""
+        args = recycles_parser.parse_args()
+        position = 'POINT({} {})'.format(args['pos_lat'], args['pos_lng'])
+        new_recycle = Recycle(
+            name=args['name'],
+            address=args['address'],
+            position=position,
+            open_time=args['open_time'],
+            close_time=args['close_time'],
+            trash_types=args['trash_types'],
+            bonus_program=args['bonus_program'],
+        )
+        new_recycle.save()
+        print(new_recycle.id)
+        return {'id': new_recycle.id}
 
 
 class Recycles(Resource):

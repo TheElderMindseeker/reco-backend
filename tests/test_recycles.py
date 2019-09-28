@@ -37,8 +37,8 @@ def test_get_recycle(client):
     }
     response = client.get('/recycles', query_string=query_str)
     assert response.status_code == 200
-    assert isinstance(response.json['ids'], list)
-    assert len(response.json['ids']) >= 1
+    assert isinstance(response.json['result'], list)
+    assert len(response.json['result']) >= 1
 
     query_str = {
         'c_lat': '45.853467',
@@ -48,8 +48,8 @@ def test_get_recycle(client):
     }
     response = client.get('/recycles', query_string=query_str)
     assert response.status_code == 200
-    assert isinstance(response.json['ids'], list)
-    assert len(response.json['ids']) >= 1
+    assert isinstance(response.json['result'], list)
+    assert len(response.json['result']) >= 1
 
     query_str = {
         'c_lat': '45.853467',
@@ -59,8 +59,8 @@ def test_get_recycle(client):
     }
     response = client.get('/recycles', query_string=query_str)
     assert response.status_code == 200
-    assert isinstance(response.json['ids'], list)
-    assert len(response.json['ids']) == 0
+    assert isinstance(response.json['result'], list)
+    assert len(response.json['result']) == 0
 
     response = client.get('/recycles/{}'.format(new_recycle.id))
     assert response.status_code == 200
