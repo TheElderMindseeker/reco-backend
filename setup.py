@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="trash",
-    version="1.1.1",
+    version="2.0.0",
     author="Daniil Botnarenku",
     author_email="daniil.botnarenku@gmail.com",
     description="Digital Breakthrough project",

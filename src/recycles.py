@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, abort
 from flask_restful import Api, Resource, fields, marshal_with, reqparse
 from geoalchemy2 import func
+from geoalchemy2.shape import to_shape
 
 from src.models import Recycle, TrashPoint
 
@@ -10,13 +11,15 @@ api = Api(recycles)
 geo_rec_parser = reqparse.RequestParser()
 recycles_parser = reqparse.RequestParser()
 
-geo_rec_parser.add_argument('center', type=str, required=True)
+geo_rec_parser.add_argument('c_lat', type=str, required=True)
+geo_rec_parser.add_argument('c_lng', type=str, required=True)
 geo_rec_parser.add_argument('radius', type=float, required=True)
 geo_rec_parser.add_argument('trash_types', type=str)
 
 recycles_parser.add_argument('name', type=str, required=True)
 recycles_parser.add_argument('address', type=str, required=True)
-recycles_parser.add_argument('position', type=str, required=True)
+recycles_parser.add_argument('pos_lat', type=str, required=True)
+recycles_parser.add_argument('pos_lng', type=str, required=True)
 recycles_parser.add_argument('open_time', type=str, required=True)
 recycles_parser.add_argument('close_time', type=str, required=True)
 recycles_parser.add_argument('trash_types', type=str, required=True)
@@ -28,9 +31,9 @@ class RecyclesList(Resource):
     def get(self):
         """Get list of recycle units"""
         args = geo_rec_parser.parse_args()
+        center = 'POINT({} {})'.format(args['c_lat'], args['c_lng'])
         ids = Recycle.query.filter(
-            func.ST_Distance_Sphere(args['center'], Recycle.position) <=
-            args['radius'])
+            func.ST_Distance_Sphere(center, Recycle.position) <= args['radius'])
         result = ids.all()
         if args['trash_types']:
             result = [
@@ -45,10 +48,11 @@ class RecyclesList(Resource):
     def post(self):
         """Create new recycle unit"""
         args = recycles_parser.parse_args()
+        position = 'POINT({} {})'.format(args['pos_lat'], args['pos_lng'])
         new_recycle = Recycle(
             name=args['name'],
             address=args['address'],
-            position=args['position'],
+            position=position,
             open_time=args['open_time'],
             close_time=args['close_time'],
             trash_types=args['trash_types'],
@@ -59,10 +63,23 @@ class RecyclesList(Resource):
         return {'id': new_recycle.id}
 
 
+class PositionLatitude(fields.Raw):
+    """Extract latitude"""
+    def format(self, value):
+        return to_shape(value).y
+
+
+class PositionLongitude(fields.Raw):
+    """Extract latitude"""
+    def format(self, value):
+        return to_shape(value).x
+
+
 recycle_fields = {
     'name': fields.String,
     'address': fields.String,
-    'position': fields.String,
+    'pos_lat': PositionLatitude(attribute='position'),
+    'pos_lng': PositionLongitude(attribute='position'),
     'open_time': fields.String,
     'close_time': fields.String,
     'trash_types': fields.String,
@@ -91,7 +108,8 @@ class Recycles(Resource):
 
 trash_point_parser = reqparse.RequestParser()
 trash_point_parser.add_argument('address', type=str, required=True)
-trash_point_parser.add_argument('position', type=str, required=True)
+trash_point_parser.add_argument('pos_lat', type=str, required=True)
+trash_point_parser.add_argument('pos_lng', type=str, required=True)
 trash_point_parser.add_argument('comment', type=str, required=True)
 trash_point_parser.add_argument('contacts', type=str, required=True)
 trash_point_parser.add_argument('trash_types', type=str, required=True)
@@ -102,9 +120,9 @@ class TrashPointsList(Resource):
     def get(self):
         """Get all trash points available"""
         args = geo_rec_parser.parse_args()
+        center = 'POINT({} {})'.format(args['c_lat'], args['c_lng'])
         ids = TrashPoint.query.filter(
-            func.ST_Distance_Sphere(args['center'], TrashPoint.position) <=
-            args['radius'])
+            func.ST_Distance_Sphere(center, TrashPoint.position) <= args['radius'])
         result = ids.all()
         if args['trash_types']:
             result = [
@@ -119,8 +137,9 @@ class TrashPointsList(Resource):
     def post(self):
         """Create a new trash point"""
         args = trash_point_parser.parse_args()
+        position = 'POINT({} {})'.format(args['pos_lat'], args['pos_lng'])
         new_trash_point = TrashPoint(address=args['address'],
-                                     position=args['position'],
+                                     position=position,
                                      comment=args['comment'],
                                      contacts=args['contacts'],
                                      trash_types=args['trash_types'])
@@ -129,7 +148,8 @@ class TrashPointsList(Resource):
 
 
 trash_point_fields = {
-    'position': fields.String,
+    'pos_lat': PositionLatitude(attribute='position'),
+    'pos_lng': PositionLongitude(attribute='position'),
     'comment': fields.String,
     'address': fields.String,
     'contacts': fields.String,

@@ -22,7 +22,7 @@ def test_get_recycle(client):
     new_recycle = Recycle(
         name='Recycle 2',
         address='Recycling str, 24',
-        position='POINT(20 40)',
+        position='POINT(45.853467 65.254376)',
         open_time='10:00',
         close_time='19:00',
         trash_types='plastic&organic&javascript',
@@ -31,7 +31,8 @@ def test_get_recycle(client):
     new_recycle.save()
 
     query_str = {
-        'center': 'POINT(20 40)',
+        'c_lat': '45.853467',
+        'c_lng': '65.254376',
         'radius': 1.0,
     }
     response = client.get('/recycles', query_string=query_str)
@@ -40,7 +41,8 @@ def test_get_recycle(client):
     assert len(response.json['ids']) >= 1
 
     query_str = {
-        'center': 'POINT(20 40)',
+        'c_lat': '45.853467',
+        'c_lng': '65.254376',
         'radius': 1.0,
         'trash_types': 'javascript,organic',
     }
@@ -50,7 +52,8 @@ def test_get_recycle(client):
     assert len(response.json['ids']) >= 1
 
     query_str = {
-        'center': 'POINT(20 40)',
+        'c_lat': '45.853467',
+        'c_lng': '65.254376',
         'radius': 1.0,
         'trash_types': 'plastic,metal',
     }
@@ -61,13 +64,15 @@ def test_get_recycle(client):
 
     response = client.get('/recycles/{}'.format(new_recycle.id))
     assert response.status_code == 200
+    assert 'pos_lat' in response.json
+    assert 'pos_lng' in response.json
 
 
 def test_get_trash_point(client):
     """Test getting trash points"""
     new_trash_point = TrashPoint(
         address='Trash Avenue, 77',
-        position='POINT(100 20)',
+        position='POINT(45.173467 64.254076)',
         comment='Pick up here',
         contacts='@TrashGiver',
         trash_types='metal&organic&plastic',
@@ -75,7 +80,8 @@ def test_get_trash_point(client):
     new_trash_point.save()
 
     query_str = {
-        'center': 'POINT(100 20)',
+        'c_lat': '45.173467',
+        'c_lng': '64.254076',
         'radius': 1.0,
     }
     response = client.get('/trashpoints', query_string=query_str)
@@ -84,7 +90,8 @@ def test_get_trash_point(client):
     assert len(response.json['ids']) >= 1
 
     query_str = {
-        'center': 'POINT(100 20)',
+        'c_lat': '45.173467',
+        'c_lng': '64.254076',
         'radius': 1.0,
         'trash_types': 'metal',
     }
@@ -94,7 +101,8 @@ def test_get_trash_point(client):
     assert len(response.json['ids']) >= 1
 
     query_str = {
-        'center': 'POINT(100 20)',
+        'c_lat': '45.173467',
+        'c_lng': '64.254076',
         'radius': 1.0,
         'trash_types': 'javascript,metal',
     }
@@ -105,6 +113,8 @@ def test_get_trash_point(client):
 
     response = client.get('/trashpoints/{}'.format(new_trash_point.id))
     assert response.status_code == 200
+    assert 'pos_lat' in response.json
+    assert 'pos_lng' in response.json
 
 
 def test_post_recycle(client):
@@ -112,7 +122,8 @@ def test_post_recycle(client):
     json_data = {
         'name': 'Recycle 1',
         'address': 'Recycling str, 12',
-        'position': 'POINT(0 1)',
+        'pos_lat': '78.194639',
+        'pos_lng': '19.750175',
         'open_time': '10:00',
         'close_time': '19:00',
         'trash_types': 'plastic&organic&javascript',
@@ -126,7 +137,8 @@ def test_post_trash_point(client):
     """Test trash point creation"""
     json_data = {
         'address': 'Recycling str, 12',
-        'position': 'POINT(0 1)',
+        'pos_lat': '78.194639',
+        'pos_lng': '19.750175',
         'comment': 'thanks dude!',
         'contacts': 'Im so easy to find!',
         'trash_types': 'plastic&organic&javascript',
