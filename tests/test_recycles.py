@@ -86,8 +86,8 @@ def test_get_trash_point(client):
     }
     response = client.get('/trashpoints', query_string=query_str)
     assert response.status_code == 200
-    assert isinstance(response.json['ids'], list)
-    assert len(response.json['ids']) >= 1
+    assert isinstance(response.json['result'], list)
+    assert len(response.json['result']) >= 1
 
     query_str = {
         'c_lat': '45.173467',
@@ -97,8 +97,8 @@ def test_get_trash_point(client):
     }
     response = client.get('/trashpoints', query_string=query_str)
     assert response.status_code == 200
-    assert isinstance(response.json['ids'], list)
-    assert len(response.json['ids']) >= 1
+    assert isinstance(response.json['result'], list)
+    assert len(response.json['result']) >= 1
 
     query_str = {
         'c_lat': '45.173467',
@@ -108,8 +108,8 @@ def test_get_trash_point(client):
     }
     response = client.get('/trashpoints', query_string=query_str)
     assert response.status_code == 200
-    assert isinstance(response.json['ids'], list)
-    assert len(response.json['ids']) == 0
+    assert isinstance(response.json['result'], list)
+    assert len(response.json['result']) == 0
 
     response = client.get('/trashpoints/{}'.format(new_trash_point.id))
     assert response.status_code == 200

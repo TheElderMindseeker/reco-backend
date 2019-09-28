@@ -122,8 +122,25 @@ trash_point_parser.add_argument('contacts', type=str, required=True)
 trash_point_parser.add_argument('trash_types', type=str, required=True)
 
 
+trash_point_fields = {
+    'id': fields.Integer,
+    'pos_lat': PositionLatitude(attribute='position'),
+    'pos_lng': PositionLongitude(attribute='position'),
+    'comment': fields.String,
+    'address': fields.String,
+    'contacts': fields.String,
+    'trash_types': fields.String,
+}
+
+
+trash_point_list = {
+    'result': fields.List(fields.Nested(trash_point_fields)),
+}
+
+
 class TrashPointsList(Resource):
     """List of trash points"""
+    @marshal_with(trash_point_list)
     def get(self):
         """Get all trash points available"""
         args = geo_rec_parser.parse_args()
@@ -133,13 +150,13 @@ class TrashPointsList(Resource):
         result = ids.all()
         if args['trash_types']:
             result = [
-                r_obj.id for r_obj in result
+                r_obj for r_obj in result
                 if set(args['trash_types'].split(',')).issubset(
                     set(r_obj.trash_types.split('&')))
             ]
-            return {'ids': result}
+            return {'result': result}
         else:
-            return {'ids': [r_obj.id for r_obj in result]}
+            return {'result': [r_obj for r_obj in result]}
 
     def post(self):
         """Create a new trash point"""
@@ -152,17 +169,6 @@ class TrashPointsList(Resource):
                                      trash_types=args['trash_types'])
         new_trash_point.save()
         return dict()
-
-
-trash_point_fields = {
-    'id': fields.Integer,
-    'pos_lat': PositionLatitude(attribute='position'),
-    'pos_lng': PositionLongitude(attribute='position'),
-    'comment': fields.String,
-    'address': fields.String,
-    'contacts': fields.String,
-    'trash_types': fields.String,
-}
 
 
 class TrashPoints(Resource):
